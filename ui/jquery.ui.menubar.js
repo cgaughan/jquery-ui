@@ -293,8 +293,6 @@ $.widget( "ui.menubar", {
       return;
     }
     event.preventDefault();
-    // TODO can we simplify or extract this check? especially the last two expressions
-    // there's a similar active[0] == menu[0] check in _open
     var menu = $(event.target).parents(".ui-menubar-item").children("ul");
     if ( event.type === "click" && menu.is(":visible") && this.active && this.active[0] === menu[0] ) {
       this._close();
@@ -348,30 +346,23 @@ $.widget( "ui.menubar", {
 			.unbind(".menubar");
 	},
 
+  _collapseActiveMenus: function() {
+    this.active
+      .menu("collapseAll")
+      .hide()
+      .attr({
+        "aria-hidden": "true",
+        "aria-expanded": "false"
+      })
+			.closest( this.options.items ).removeClass("ui-state-active");
+  },
+
 	_close: function() {
 		if ( !this.active || !this.active.length ) {
 			return;
 		}
 
-		if ( this.active.closest( this.options.items ).data("hasSubMenu") ) {
-			this.active
-				.menu("collapseAll")
-				.hide()
-				.attr({
-					"aria-hidden": "true",
-					"aria-expanded": "false"
-				});
-			this.active
-				.prev()
-				.removeClass("ui-state-active");
-			this.active.closest( this.options.items ).removeClass("ui-state-active");
-		} else {
-			this.active
-				.attr({
-					"aria-hidden": "true",
-					"aria-expanded": "false"
-				});
-		}
+    this._collapseActiveMenus();
 
 		this.active = null;
 		this.open = false;
@@ -382,21 +373,9 @@ $.widget( "ui.menubar", {
 		var button,
 			menuItem = menu.closest(".ui-menubar-item");
 
-		if ( this.active && this.active.length ) {
-		// TODO refactor, almost the same as _close above, but don't remove tabIndex
-			if ( this.active.closest( this.options.items ).data("hasSubMenu")  ) {
-				this.active
-					.menu("collapseAll")
-					.hide()
-					.attr({
-						"aria-hidden": "true",
-						"aria-expanded": "false"
-					});
-				this.active.closest(this.options.items)
-					.removeClass("ui-state-active");
-			} else {
-				this.active.removeClass("ui-state-active");
-			}
+		if ( this.active && this.active.length &&
+        this.active.closest( this.options.items ).data("hasSubMenu") ) {
+          this._collapseActiveMenus();
 		}
 
 		button = menuItem.addClass("ui-state-active");
