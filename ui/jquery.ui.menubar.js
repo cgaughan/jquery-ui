@@ -317,7 +317,11 @@ $.widget( "ui.menubar", {
 	_destroy : function() {
 		this.menuItems
 			.removeClass("ui-menubar-item")
-			.removeAttr("role");
+			.removeAttr("role")
+      .css({
+        "border-width" : "",
+        "border-style" : ""
+      });
 
 		this.element
 			.removeClass("ui-menubar ui-widget-header ui-helper-clearfix")
