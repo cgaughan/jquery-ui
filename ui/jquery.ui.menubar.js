@@ -15,8 +15,6 @@
  */
 (function( $ ) {
 
-// TODO when mixing clicking menus and keyboard navigation, focus handling is broken
-// there has to be just one item that has tabindex
 $.widget( "ui.menubar", {
 	version: "@VERSION",
 	options: {
@@ -289,34 +287,34 @@ $.widget( "ui.menubar", {
 		}
 	},
 
-	_mouseBehaviorForSubmenu: function( event ) {
-		if ( event.type === "focus" && !event.originalEvent ) {
-			// ignore triggered focus event
-			return;
-		}
-		event.preventDefault();
-		// TODO can we simplify or extract this check? especially the last two expressions
-		// there's a similar active[0] == menu[0] check in _open
-		var menu = $(event.target).parents(".ui-menubar-item").children("ul");
-		if ( event.type === "click" && menu.is(":visible") && this.active && this.active[0] === menu[0] ) {
-			this._close();
-			return;
-		}
-		if ( event.type === "mouseenter" ) {
-			this.element.find(":focus").focusout();
-			if ( this.stashedOpenMenu ) {
-				this._open( event, menu);
-			}
-			this.stashedOpenMenu = undefined;
-		}
-		if ( ( this.open && event.type === "mouseenter" ) || event.type === "click" || this.options.autoExpand ) {
-			if ( this.options.autoExpand ) {
-				clearTimeout( this.closeTimer );
-			}
-			this._open( event, menu );
-			event.stopImmediatePropagation();
-		}
-	},
+  _mouseBehaviorForSubmenu: function( event ) {
+    // ignore triggered focus event
+    if ( event.type === "focus" && !event.originalEvent ) {
+      return;
+    }
+    event.preventDefault();
+    // TODO can we simplify or extract this check? especially the last two expressions
+    // there's a similar active[0] == menu[0] check in _open
+    var menu = $(event.target).parents(".ui-menubar-item").children("ul");
+    if ( event.type === "click" && menu.is(":visible") && this.active && this.active[0] === menu[0] ) {
+      this._close();
+      return;
+    }
+    if ( event.type === "mouseenter" ) {
+      this.element.find(":focus").focusout();
+      if ( this.stashedOpenMenu ) {
+        this._open( event, menu);
+      }
+      this.stashedOpenMenu = undefined;
+    }
+    if ( ( this.open && event.type === "mouseenter" ) || event.type === "click" || this.options.autoExpand ) {
+      if ( this.options.autoExpand ) {
+        clearTimeout( this.closeTimer );
+      }
+      this._open( event, menu );
+      event.stopImmediatePropagation();
+    }
+  },
 
 	_destroy : function() {
 		this.menuItems
@@ -333,7 +331,7 @@ $.widget( "ui.menubar", {
 			.removeClass("ui-button ui-widget ui-button-text-only ui-menubar-link ui-state-default")
 			.removeAttr("role")
 			.removeAttr("aria-haspopup")
-			// TODO unwrap?
+			// unwrap(): does not work as expected!
 			.children("span.ui-button-text").each(function() {
 				var item = $( this );
 				item.parent().html( item.html() );
@@ -401,7 +399,6 @@ $.widget( "ui.menubar", {
 			}
 		}
 
-		// set tabIndex -1 to have the button skipped on shift-tab when menu is open (it gets focus)
 		button = menuItem.addClass("ui-state-active");
 
 		this.active = menu
@@ -413,8 +410,7 @@ $.widget( "ui.menubar", {
 			.attr("aria-expanded", "true")
 			.menu("focus", event, menu.children(".ui-menu-item").first() )
 			.focus() // Establish focus on the submenu item
-			.focusin(); // Move focus within the containing submenu
-
+			.focusin(); // Move focus within the submenu containing the above item
 
 		this.open = true;
 	},
