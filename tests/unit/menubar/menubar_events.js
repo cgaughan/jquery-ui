@@ -46,29 +46,6 @@ test( "hover over a menu item with no sub-menu should close open menu", function
 	equal($(".ui-menu:visible").length, 0,  "After triggering a sub-menu, a click on a peer menu item should close the opened sub-menu");
 });
 
-asyncTest( "TAB order should be sane mirroring dialog's test", function() {
-	expect( 3 );
-
-	var element = $( "#bar1" ).menubar(),
-		firstMenuItem = $( "#bar1 .ui-menubar-item .ui-button:first" );
-
-	function checkTab() {
-		setTimeout( start );
-		ok( !firstMenuItem.hasClass( "ui-state-focus" ), "The manually focused item should no longer have focus after TAB" );
-		//setTimeout( start );
-	}
-
-	firstMenuItem[ 0 ].focus();
-	ok( $( firstMenuItem ).hasClass( "ui-state-focus" ), "Should have focus class" );
-
-	setTimeout(function() {
-		equal( document.activeElement, firstMenuItem[0], "Focus set on first menuItem" );
-		$( document.activeElement ).simulate( "keydown", { keyCode: $.ui.keyCode.TAB } );
-		setTimeout( checkTab );
-	})
-
-} );
-
 asyncTest( "TAB order should be sane", function() {
 	expect( 3 );
 
