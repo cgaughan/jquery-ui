@@ -89,82 +89,29 @@ $.widget( "ui.menubar", {
 	},
 
 	_initializeMenuItems: function() {
-		var menubar = this;
+		var subMenus,
+			menubar = this;
 
 		this.menuItems
 			.addClass("ui-menubar-item")
-			.attr( "role", "presentation" );
+			.attr( "role", "presentation" )
+			.css({
+				"border-width" : "1px",
+				"border-style" : "hidden"
+			});
 
-		$.each( this.menuItems, function( index, menuItem ){
-			menubar._initializeMenuItem( $( menuItem ), menubar );
-			menubar._identifyMenuItemsNeighbors( $( menuItem ), menubar, index );
-		} );
-	},
-
-	_identifyMenuItemsNeighbors: function( $menuItem, menubar, index ) {
-		var collectionLength = this.menuItems.toArray().length,
-			isFirstElement = ( index === 0 ),
-			isLastElement = ( index === ( collectionLength - 1 ) );
-
-		if ( isFirstElement ) {
-			$menuItem.data( "prevMenuItem", $( this.menuItems[collectionLength - 1]) );
-			$menuItem.data( "nextMenuItem", $( this.menuItems[index+1])  );
-		} else if ( isLastElement ) {
-			$menuItem.data( "nextMenuItem", $( this.menuItems[0])  );
-			$menuItem.data( "prevMenuItem", $( this.menuItems[index-1])  );
-		} else {
-			$menuItem.data( "nextMenuItem", $( this.menuItems[index+1])  );
-			$menuItem.data( "prevMenuItem", $( this.menuItems[index-1])  );
-		}
-	},
-
-	_initializeMenuItem: function( $menuItem, menubar ) {
-			var $item = $menuItem.children("button, a");
-
-			menubar._determineSubmenuStatus( $menuItem, menubar );
-			menubar._styleMenuItem( $menuItem, menubar );
-
-			$menuItem.data( "name", $item.text() );
-
-			if ( $menuItem.data("hasSubMenu") ) {
-				menubar._initializeSubMenu( $menuItem, menubar );
-			}
-
-			$item.data( "parentMenuItem", $menuItem );
-			menubar.items.push( $item );
-			menubar._initializeItem( $item, menubar );
-	},
-
-	_determineSubmenuStatus: function ( $menuItem, menubar ) {
-		var subMenus = $menuItem.children( menubar.options.menuElement ),
-			hasSubMenu = subMenus.length > 0;
-		$menuItem.data( "hasSubMenu", hasSubMenu );
-	},
-
-	_styleMenuItem: function( $menuItem ) {
-		$menuItem.css({
-			"border-width" : "1px",
-			"border-style" : "hidden"
-		});
-	},
-
-	_initializeSubMenu: function( $menuItem, menubar ){
-		var subMenus = $menuItem.children( menubar.options.menuElement );
-
-		subMenus
-			.menu({
-				position: {
-					within: this.options.position.within
-				},
-				select: function( event, ui ) {
-					ui.item.parents("ul.ui-menu:last").hide();
-					menubar._close();
-					// TODO what is this targetting? there's probably a better way to access it
-					$( event.target ).prev().focus();
-					menubar._trigger( "select", event, ui );
-				},
-				menus: this.options.menuElement
-			})
+		subMenus = this.menuItems.children( menubar.options.menuElement ).menu({
+			position: {
+				within: this.options.position.within
+			},
+			select: function( event, ui ) {
+				ui.item.parents("ul.ui-menu:last").hide();
+				menubar._close();
+				ui.item.parents(".ui-menubar-item").children().first().focus();
+				menubar._trigger( "select", event, ui );
+			},
+			menus: this.options.menuElement
+		})
 			.hide()
 			.attr({
 				"aria-hidden": "true",
@@ -173,7 +120,7 @@ $.widget( "ui.menubar", {
 
 		this._on( subMenus, {
 			keydown: function( event ) {
-        $(event.target).attr("tabIndex", 1);
+				$(event.target).attr("tabIndex", 1);
 				var parentButton,
 					menu = $( this );
 				if ( menu.is(":hidden") ) {
@@ -195,7 +142,7 @@ $.widget( "ui.menubar", {
 					}
 
 					event.preventDefault();
-        $(event.target).attr("tabIndex", -1);
+				$(event.target).attr("tabIndex", -1);
 					break;
 				case $.ui.keyCode.RIGHT:
 					this.next( event );
@@ -207,10 +154,32 @@ $.widget( "ui.menubar", {
 				$(event.target).removeClass("ui-state-focus");
 			}
 		});
+
+		$.each( this.menuItems, function( index, menuItem ) {
+			var subMenus = $( menuItem ).children( menubar.options.menuElement ),
+				hasSubMenu = subMenus.length > 0;
+
+			$( menuItem ).data( "hasSubMenu", hasSubMenu );
+			menubar._identifyMenuItemsNeighbors( $( menuItem ), menubar, index );
+		} );
 	},
 
-	_initializeItem: function( $anItem, menubar ) {
-		var menuItemHasSubMenu = $anItem.data("parentMenuItem").data("hasSubMenu");
+	_identifyMenuItemsNeighbors: function( $menuItem, menubar, index ) {
+		var collectionLength = this.menuItems.toArray().length,
+			isFirstElement = ( index === 0 ),
+			isLastElement = ( index === ( collectionLength - 1 ) );
+
+		if ( isFirstElement ) {
+			$menuItem.data( "prevMenuItem", $( this.menuItems[collectionLength - 1]) );
+			$menuItem.data( "nextMenuItem", $( this.menuItems[index+1])  );
+		} else if ( isLastElement ) {
+			$menuItem.data( "nextMenuItem", $( this.menuItems[0])  );
+			$menuItem.data( "prevMenuItem", $( this.menuItems[index-1])  );
+		} else {
+			$menuItem.data( "nextMenuItem", $( this.menuItems[index+1])  );
+			$menuItem.data( "prevMenuItem", $( this.menuItems[index-1])  );
+		}
+	},
 
 
 		this._focusable( this.items );
