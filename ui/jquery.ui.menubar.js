@@ -287,41 +287,41 @@ $.widget( "ui.menubar", {
 		}
 	},
 
-  _mouseBehaviorForSubmenu: function( event ) {
-    // ignore triggered focus event
-    if ( event.type === "focus" && !event.originalEvent ) {
-      return;
-    }
-    event.preventDefault();
-    var menu = $(event.target).parents(".ui-menubar-item").children("ul");
-    if ( event.type === "click" && menu.is(":visible") && this.active && this.active[0] === menu[0] ) {
-      this._close();
-      return;
-    }
-    if ( event.type === "mouseenter" ) {
-      this.element.find(":focus").focusout();
-      if ( this.stashedOpenMenu ) {
-        this._open( event, menu);
-      }
-      this.stashedOpenMenu = undefined;
-    }
-    if ( ( this.open && event.type === "mouseenter" ) || event.type === "click" || this.options.autoExpand ) {
-      if ( this.options.autoExpand ) {
-        clearTimeout( this.closeTimer );
-      }
-      this._open( event, menu );
-      event.stopImmediatePropagation();
-    }
-  },
+	_mouseBehaviorForSubmenu: function( event ) {
+		// ignore triggered focus event
+		if ( event.type === "focus" && !event.originalEvent ) {
+			return;
+		}
+		event.preventDefault();
+		var menu = $(event.target).parents(".ui-menubar-item").children("ul");
+		if ( event.type === "click" && menu.is(":visible") && this.active && this.active[0] === menu[0] ) {
+			this._close();
+			return;
+		}
+		if ( event.type === "mouseenter" ) {
+			this.element.find(":focus").focusout();
+			if ( this.stashedOpenMenu ) {
+				this._open( event, menu);
+			}
+			this.stashedOpenMenu = undefined;
+		}
+		if ( ( this.open && event.type === "mouseenter" ) || event.type === "click" || this.options.autoExpand ) {
+			if ( this.options.autoExpand ) {
+				clearTimeout( this.closeTimer );
+			}
+			this._open( event, menu );
+			event.stopImmediatePropagation();
+		}
+	},
 
 	_destroy : function() {
 		this.menuItems
 			.removeClass("ui-menubar-item")
 			.removeAttr("role")
-      .css({
-        "border-width" : "",
-        "border-style" : ""
-      });
+			.css({
+				"border-width" : "",
+				"border-style" : ""
+			});
 
 		this.element
 			.removeClass("ui-menubar ui-widget-header ui-helper-clearfix")
@@ -350,23 +350,23 @@ $.widget( "ui.menubar", {
 			.unbind(".menubar");
 	},
 
-  _collapseActiveMenus: function() {
-    this.active
-      .menu("collapseAll")
-      .hide()
-      .attr({
-        "aria-hidden": "true",
-        "aria-expanded": "false"
-      })
+	_collapseActiveMenus: function() {
+		this.active
+			.menu("collapseAll")
+			.hide()
+			.attr({
+				"aria-hidden": "true",
+				"aria-expanded": "false"
+			})
 			.closest( this.options.items ).removeClass("ui-state-active");
-  },
+	},
 
 	_close: function() {
 		if ( !this.active || !this.active.length ) {
 			return;
 		}
 
-    this._collapseActiveMenus();
+		this._collapseActiveMenus();
 
 		this.active = null;
 		this.open = false;
@@ -378,8 +378,8 @@ $.widget( "ui.menubar", {
 			menuItem = menu.closest(".ui-menubar-item");
 
 		if ( this.active && this.active.length &&
-        this.active.closest( this.options.items ).data("hasSubMenu") ) {
-          this._collapseActiveMenus();
+				this.active.closest( this.options.items ).data("hasSubMenu") ) {
+					this._collapseActiveMenus();
 		}
 
 		button = menuItem.addClass("ui-state-active");
