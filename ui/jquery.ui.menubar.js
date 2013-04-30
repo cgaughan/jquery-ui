@@ -34,60 +34,58 @@ $.widget( "ui.menubar", {
 	_create: function() {
 		// Top-level elements containing the submenu-triggering elem
 		this.menuItems = this.element.children( this.options.items );
-		// Links or buttons in menuItems, triggers of the submenus
-		this.items = [];
 
-		this._initializeMenubarsBoundElement();
-		this._initializeWidget();
-		this._initializeMenuItems();
+		// Links or buttons in menuItems, triggers of the submenus
+		this.items = this.menuItems.children( "button, a" );
 
 		// Keep track of open submenus
 		this.openSubmenus = 0;
 
-		// Scorched earth: NOTHING can be tabbed to
-		this.menuItems.find("*").slice(1).attr("tabindex", -1);
-	},
-
-	_initializeMenubarsBoundElement: function() {
-		this.element
-			.addClass("ui-menubar ui-widget-header ui-helper-clearfix")
-			.attr( "role", "menubar" );
+		this._initializeWidget();
+		this._initializeMenuItems();
+		this._initializeItems();
 	},
 
 	_initializeWidget: function() {
-		var menubar = this;
-
-		this._on( {
+		this.element
+			.addClass("ui-menubar ui-widget-header ui-helper-clearfix")
+			.attr( "role", "menubar" );
+		this._on( this.element, {
 			keydown: function( event ) {
-				if ( event.keyCode === $.ui.keyCode.ESCAPE && menubar.active && menubar.active.menu( "collapse", event ) !== true ) {
-					var active = menubar.active;
-					menubar.active.blur();
-					menubar._close( event );
+				var active;
+				if ( event.keyCode === $.ui.keyCode.ESCAPE &&
+						this.active &&
+						this.active.menu( "collapse", event ) !== true ) {
+					active = this.active;
+					this.active.blur();
+					this._close( event );
 					$( event.target ).blur().mouseleave();
 					active.prev().focus();
 				}
 			},
 			focusin: function() {
-        this._disableTabIndexOnFirstMenuItem();
-				clearTimeout( menubar.closeTimer );
+				this.items.eq( 0 ).attr( "tabIndex", -1 );
+				clearTimeout( this.closeTimer );
 			},
 			focusout: function( event ) {
-				menubar.closeTimer = setTimeout (function() {
+				var menubar = this;
+				this.closeTimer = setTimeout (function() {
 					menubar._close( event );
-					menubar._reenableTabIndexOnFirstMenuItem();
+					menubar.items.eq( 0 ).attr( "tabIndex", 1 );
 				}, 150 );
 			},
 			"mouseleave .ui-menubar-item": function( event ) {
-				if ( menubar.options.autoExpand ) {
-					menubar.closeTimer = setTimeout( function() {
+				var menubar = this;
+				if ( this.options.autoExpand ) {
+					this.closeTimer = setTimeout( function() {
 						menubar._close( event );
 					}, 150 );
 				}
 			},
 			"mouseenter .ui-menubar-item": function() {
-				clearTimeout( menubar.closeTimer );
+				clearTimeout( this.closeTimer );
 			}
-		});
+		} );
 	},
 
 	_initializeMenuItems: function() {
@@ -526,28 +524,6 @@ $.widget( "ui.menubar", {
 		nextMenuItem.find(".ui-button").focus();
 
 		this.open = true;
-	},
-
-	_closeOpenMenu: function( menu ) {
-		menu
-		.menu("collapseAll")
-		.hide()
-		.attr({
-			"aria-hidden": "true",
-			"aria-expanded": "false"
-		});
-	},
-
-	_deactivateMenusParentButton: function( menu ) {
-		menu.parent(".ui-menubar-item").removeClass("ui-state-active");
-	},
-
-  _disableTabIndexOnFirstMenuItem: function() {
-    this.items[0].attr( "tabIndex", -1 );
-  },
-
-	_reenableTabIndexOnFirstMenuItem: function() {
-    this.items[0].attr( "tabIndex", 1 );
 	}
 
 });
